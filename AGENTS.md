@@ -1,6 +1,6 @@
 # Blender character pipeline: reference images → three-colour points → animated 3D character
 
-You (the AI) write and run Blender Python headless. The user is the **art director**: they judge looks and approve each stage. Never ask them to read logs or check vertices.
+You (the AI) write and run Blender Python headless. The user provides references, judges looks, approves each stage and does the manual photo fit in FaceBuilder (stage C) when needed. You call the add-ons, make the edits and run the checks. Never ask them to read logs or check vertices.
 
 ## Hard rules (always)
 1. **Never overwrite.**
@@ -21,23 +21,23 @@ You (the AI) write and run Blender Python headless. The user is the **art direct
    - Render only the affected views.
 
 ## Environment
-- Blender **4.4** is production: `C:/Program Files/Blender Foundation/Blender 4.4/blender.exe`.
-  - Add-ons needed: **MPFB** (`bl_ext.user_default.mpfb`), **KeenTools FaceBuilder**, and Rigify (built in).
-  - Blender 5.2 + MCP exists only for experiments on *copies*.
+- Tested with Blender **4.4** + MPFB 2 on Windows. Other versions are untested. Set `BLENDER` to your blender executable.
+  - Add-ons: **MPFB** (`bl_ext.user_default.mpfb`, required), Rigify (built in), **KeenTools FaceBuilder** (optional, stage C).
 - Run scripts headless, in the background for anything over 2 minutes:
   ```bash
-  B="C:/Program Files/Blender Foundation/Blender 4.4/blender.exe"
+  B="$BLENDER"
   "$B" -b versions/s1_draft_vNNN.blend --python work/c/vNNN/step.py -- --save 2>&1 | grep -E "^K|Error|Trace"
   ```
 - **Use absolute output paths.** Blender resolves relative paths against C:/, not the shell's working directory.
 - With about 32 GB of RAM, run at most 2–3 Blender processes in parallel.
+- First body from an empty scene: `quickstart/first_body.py` (see README).
 - Project root: `<project root>`. For a new character, copy the structure: `versions/ work/c/ reviews/ textures/ reference/ mocap/`.
 
 ## The pipeline (details and script entry points: `docs/pipeline.md`)
 
 | # | Stage | Main tool | Gate (user approves) |
 |---|---|---|---|
-| A | Body draft from reference, text or preset | MPFB human + `scripts/s1_*.py`, green points | overall proportions |
+| A | Body draft from reference, text or preset | MPFB human + `quickstart/first_body.py`, `scripts/s1_*.py`, green points | overall proportions |
 | B | Body sculpt + separate bust/glute parts | white points (body surface), red points (bust/glute), sliders | local shapes, part joins |
 | C | Head and face | **FaceBuilder** fit from photos (the user pins in the GUI), joined to the body; three-colour face points for fine tuning only | likeness |
 | D | Skin, makeup, eyes | user photo texture → body UV, makeup layer, eye scale | close-up look |
@@ -45,7 +45,7 @@ You (the AI) write and run Blender Python headless. The user is the **art direct
 | F | Rig and motion | Rigify via MPFB `add_builtin_rig` + `generate_rigify_rig`, Mixamo FBX retarget, in-place loop | deformation in motion |
 | G | Physics | jiggle bones (`CS_Jiggle`) + voxel-cage cloth soft body (`CS_Soft`) + thigh contact geometry nodes | motion feel, left/right independent |
 | H | Hair, clothing, portfolio render | Hair Curves, cloth | each separately |
-| I | Expressions | shape keys (ARKit-style), *to do* | expressions don't break the face |
+| I | Expressions | static smile from the photo fit only; controllable expression shape keys (ARKit-style) *to do* | expressions don't break the face |
 
 **Lesson:**
 - Three-colour points are great for body structure but could not reach facial likeness (v031–v064, many reworks).
@@ -66,9 +66,9 @@ You (the AI) write and run Blender Python headless. The user is the **art direct
    - Print `K` lines with key numbers.
    - Save only with `--save` to the new version.
 3. Verify:
-   - Run `scripts/rcmp.py` (same-camera renders, before and after).
-   - For physics, also run `scripts/metrics.py`.
-   - Combine with `scripts/grid.py` and ffmpeg into one mp4 or png.
+   - Run `tools/rcmp.py` (same-camera renders, before and after).
+   - For physics, also run `tools/metrics.py`.
+   - Combine with `tools/grid.py` and ffmpeg into one mp4 or png.
    - Inspect the stills yourself before showing the user.
 4. Deliver: `reviews/<folder>/NN_<what>_待确认.(png|mp4)`, then append the appendix note and send a short Chinese report with a checklist of what to look at.
 

@@ -505,9 +505,15 @@ def load_zones(obj):
 
 
 # ------------------------------------------------------------------ measurement (same definition as the reference)
-REF_METRICS = json.load(open(os.path.join(REFDIR, "ref01_metrics.json"), encoding="utf-8"))
-REF_LEG = json.load(open(os.path.join(REFDIR, "ref01_legs.json"), encoding="utf-8"))   # per-leg widths (stance-free)
-FLS = sorted(float(k) for k in REF_METRICS["profile"].keys())
+def _load_ref(name):
+    """Reference measurements are made from your own reference image and are not shipped; None if absent."""
+    p = os.path.join(REFDIR, name)
+    return json.load(open(p, encoding="utf-8")) if os.path.exists(p) else None
+
+
+REF_METRICS = _load_ref("ref01_metrics.json")
+REF_LEG = _load_ref("ref01_legs.json")   # per-leg widths (stance-free)
+FLS = sorted(float(k) for k in REF_METRICS["profile"].keys()) if REF_METRICS else []
 
 
 class Profiler:

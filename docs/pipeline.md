@@ -1,5 +1,18 @@
 # Stages: what each does, entry scripts, outputs, gates
 
+## What runs from this repository
+
+| Stage | In this repo | How |
+|---|---|---|
+| A. Body draft | **Runnable, tested** (Blender 4.4 + MPFB 2, Windows) | `quickstart/first_body.py`, then `scripts/s1_*.py`, `a_*.py` |
+| B. Body sculpt, points | Modules included (`b_points.py`, `r_points.py`, `v3_*.py`, `v4_*.py`, `v5_interaction.py`) | GUI panel; not covered by an automated test yet |
+| C–G | **Recipe only** | Described below as it was done for the showcase character; the one-off builders are marked *(not included)* |
+| H. Hair, clothing, render | Done for the showcase character, recipe only | see H |
+| I. Expressions | Static smile only (from the FaceBuilder fit); controllable expression animation not done | — |
+
+Script names marked *(not included)* were one-off builders in the original project. Use the description as a recipe and let the agent write the script for your character.
+
+
 All paths are relative to the project root `<project root>`. Scripts in `scripts/` are shared modules. Scripts in `work/c/vNNN/` are one-off builders that produced version NNN. **Reuse them as templates; don't re-run old builders on new files blindly.** They often assert specific source versions.
 
 Object names in the current character:
@@ -19,9 +32,9 @@ Object names in the current character:
   - Or a preset from `presets/`.
 - **Build:**
   - `scripts/s1_core.py` holds the parameter model. Each state is a dict `{control: value}` stored as `cs_state` on the mesh, which is the single source of truth.
-  - `scripts/s1_build.py` builds a new draft from a state JSON and never overwrites.
+  - `scripts/s1_build.py` *(not included)* builds a new draft from a state JSON and never overwrites.
   - `scripts/s1_fit.py` fits MPFB controls to the reference silhouette numbers (`reference/ref01_metrics.json`).
-- **Green points:** `scripts/a_points.py`, extended by the overlay `scripts/v3_points.py`.
+- **Green points:** `scripts/a_points.py`, extended by the overlay `scripts/v3_points.py` *(not included)*.
   - About 28 body points: shoulder, waist, hip, knee, elbow, and the bust/glute mount points.
   - They drive the global shape with mirroring and protection constraints. Dragging the knee must not make the figure taller.
 - **UI:** `scripts/s1_panel.py`, the N-panel tab "角色工作室". Launcher: `启动阶段1草模.bat`.
@@ -32,7 +45,7 @@ Object names in the current character:
   - 101 points (52 on the left or midline, plus mirrors), with caps in `assets/white_point_caps.json`.
   - Each point has a semantic name, a falloff region and per-axis safe offset limits.
   - Dragging a point can back-solve a slider (for example, the outer deltoid point drives the shoulder-muscle slider).
-- **Red points:** `scripts/s1_custom.py` (trial deformations) with the fixes in `scripts/v3_red.py`. There are 20 points driving 12 sliders for the bust and glute (upper, lower, inner, outer, orientation).
+- **Red points:** `scripts/s1_custom.py` (trial deformations) with the fixes in `scripts/v3_red.py` *(not included)*. There are 20 points driving 12 sliders for the bust and glute (upper, lower, inner, outer, orientation).
 - **Separate parts:** `scripts/v3_parts.py`.
   - The bust and glute are independent meshes (pink and orange in the viewport), mounted at green points.
   - Later they are welded for real (stage E).
@@ -43,58 +56,58 @@ Object names in the current character:
 
 ## C. Head and face
 - **Route 1 (v031–v064): three-colour face points.**
-  - `scripts/c_points.py`, `c_fit.py` (2D layout fit), `c_reference.py`, `c_ui.py` and `rw_*.py`.
+  - `scripts/c_points.py` *(not included)*, `c_fit.py` *(not included)* (2D layout fit), `c_reference.py` *(not included)*, `c_ui.py` *(not included)* and `rw_*.py` *(not included)*.
   - About 110 semantic face points, documented in `docs/阶段C_完整点位.csv`.
   - Result: controllable, but **never reached likeness**, so it was abandoned for fitting.
 - **Route 2 (v065+): FaceBuilder. This is the one to use.**
   1. The user fits the head in FaceBuilder in the GUI by pinning on 2–3 photos. The AI cannot pin in headless mode.
-  2. Join the head to the body: `scripts/cc_v073_head.py` and `cc_v076_head.py`.
+  2. Join the head to the body: `scripts/cc_v073_head.py` *(not included)* and `cc_v076_head.py` *(not included)*.
      - The head is a separate mesh that shares the body; the seam overlaps.
-     - Feminising shape keys and a profile-driven chin come from `work/c/v073/build74.py` and `build75.py`.
-  3. Neck seam: `scripts/cc_v078_fix.py` and `work/c/v076/v079_build.py`, which adds the trapezius lift and fills the nape.
+     - Feminising shape keys and a profile-driven chin come from `work/c/v073/build74.py` *(not included)* and `build75.py` *(not included)*.
+  3. Neck seam: `scripts/cc_v078_fix.py` *(not included)* and `work/c/v076/v079_build.py` *(not included)*, which adds the trapezius lift and fills the nape.
 - **Gate:** likeness from the front, side and three-quarter views, plus a neck-seam close-up.
 
 ## D. Skin, makeup, eyes (v060–v078)
-- `scripts/cc_v068_skin.py`: the user's photo skin map on the head and neck.
-- `scripts/cc_v069_skin.py`: whole-body skin, a cleaned face map, an editable makeup layer and brows.
-- `work/c/v069/make_tex.py`: texture generation.
-- `scripts/cc_v071_eyes.py`: eyeball scale relative to the lid opening.
-- `scripts/cc_v078_fix.py`: matches the body base colour to the face photo. It must re-run after boot.
+- `scripts/cc_v068_skin.py` *(not included)*: the user's photo skin map on the head and neck.
+- `scripts/cc_v069_skin.py` *(not included)*: whole-body skin, a cleaned face map, an editable makeup layer and brows.
+- `work/c/v069/make_tex.py` *(not included)*: texture generation.
+- `scripts/cc_v071_eyes.py` *(not included)*: eyeball scale relative to the lid opening.
+- `scripts/cc_v078_fix.py` *(not included)*: matches the body base colour to the face photo. It must re-run after boot.
 - Textures live in `textures/`.
 - **Gate:** close-up look at the face, eyes and skin tone match.
 
 ## E. Topology and welding (v094–v100)
-- **Bust/glute ring weld:** the dome rim is welded 1:1 to the body ring with a quad bridge. See `work/c/v095/weld95.py`, `work/c/v098/slide98.py` (ring position) and `work/c/v099/mid99b.py` (cleavage midline x = 0).
-- **Texture fill under the welds:** `work/c/v094/texfill.py`.
-- **Joint loops:** `work/c/v100/joints.py` adds concentric rings at the knee, ankle and elbow.
-- **Body sliders from a phrase:** `work/c/v101/parse.py` with `muscle.py`, which turns a sentence like "肌肉型女性" into `cs_m_*`/`cs_s_*` keys.
+- **Bust/glute ring weld:** the dome rim is welded 1:1 to the body ring with a quad bridge. See `work/c/v095/weld95.py` *(not included)*, `work/c/v098/slide98.py` *(not included)* (ring position) and `work/c/v099/mid99b.py` *(not included)* (cleavage midline x = 0).
+- **Texture fill under the welds:** `work/c/v094/texfill.py` *(not included)*.
+- **Joint loops:** `work/c/v100/joints.py` *(not included)* adds concentric rings at the knee, ankle and elbow.
+- **Body sliders from a phrase:** `work/c/v101/parse.py` *(not included)* with `muscle.py` *(not included)*, which turns a sentence like "肌肉型女性" into `cs_m_*`/`cs_s_*` keys.
 - **Gate:** seams invisible in renders, clean bends.
 
 ## F. Rig and motion (v080–v089)
-- **Rig:** `work/c/v080/v080_rig.py` runs MPFB `HumanService.add_builtin_rig(body,'rigify.human_toes')`, then `RigService.generate_rigify_rig`.
+- **Rig:** `work/c/v080/v080_rig.py` *(not included)* runs MPFB `HumanService.add_builtin_rig(body,'rigify.human_toes')`, then `RigService.generate_rigify_rig`.
   - Head and helpers get weights by nearest-vertex transfer.
-  - Teeth and tongue are parented to the head bone (`v084_anim.py`).
+  - Teeth and tongue are parented to the head bone (`v084_anim.py` *(not included)*).
 - **Mixamo:**
   - The user downloads the FBX files to `mocap/mixamo/`.
-  - `work/c/v080/v088_mixamo.py` retargets onto Rigify FK using world-space rotation deltas, without an add-on. Arms are aimed because Mixamo rests in a T-pose and Rigify in an A-pose.
-  - `v089_loop.py` cuts an in-place 29-frame catwalk loop with a crossfade.
-- **Speed:** `v086_fast.py` turns the display subsurf off in the viewport and removes the material drivers (246 → 26 ms per frame).
+  - `work/c/v080/v088_mixamo.py` *(not included)* retargets onto Rigify FK using world-space rotation deltas, without an add-on. Arms are aimed because Mixamo rests in a T-pose and Rigify in an A-pose.
+  - `v089_loop.py` *(not included)* cuts an in-place 29-frame catwalk loop with a crossfade.
+- **Speed:** `v086_fast.py` *(not included)* turns the display subsurf off in the viewport and removes the material drivers (246 → 26 ms per frame).
 - **Gate:** deformation in motion from the front and back.
 
 ## G. Physics (v102–v105, V105 on hold)
 - **Jiggle bones:**
-  - `work/c/v102/build.py` builds the `CS_Jiggle` armature at modifier 0.
-  - `jig_bake.py` (also stored as the blend text `CS_Jiggle_Bake.py`) runs the spring simulation.
+  - `work/c/v102/build.py` *(not included)* builds the `CS_Jiggle` armature at modifier 0.
+  - `jig_bake.py` *(not included)* (also stored as the blend text `CS_Jiggle_Bake.py` *(not included)*) runs the spring simulation.
   - Parameters are the `jig_freq`, `jig_damp`, `jig_gain`, `jig_max` and `jig_rot` custom properties on the pose bones.
-- **Soft body:** `work/c/v104/soft104.py` (blend text `CS_Soft_Build.py`).
+- **Soft body:** `work/c/v104/soft104.py` *(not included)* (blend text `CS_Soft_Build.py` *(not included)*).
   - A voxel cage per side (`CS_Soft_Bust_L/R`, `CS_Soft_Glute_L/R`) simulated as cloth with pressure.
   - Written back to the body with the geometry-nodes modifier `CS_SoftCopy`.
   - Inner-thigh contact uses the geometry-nodes modifier `CS_ThighContact`.
-- **Hybrid (V105):** `work/c/v105cmp/tune.py` lowers the cage stiffness and re-enables the jiggle bones with a left/right frequency spread.
-- **After changing the motion:** re-run `CS_Jiggle_Bake.py` and `CS_Soft_Build.py`.
+- **Hybrid (V105):** `work/c/v105cmp/tune.py` *(not included)* lowers the cage stiffness and re-enables the jiggle bones with a left/right frequency spread.
+- **After changing the motion:** re-run `CS_Jiggle_Bake.py` *(not included)* and `CS_Soft_Build.py` *(not included)*.
 - **Gate:** motion feel, left/right independence, no dents.
 
-## H. Roadmap (not done; do in this order, one gate each)
+## H. Roadmap (status for the showcase character: hair, clothing, topology sheet and stills done; expressions, corrective keys, Cycles close-up not done)
 1. **Static close-up:**
    - Pore normals, roughness zones and subsurface scattering.
    - Eyes with a cornea, iris depth and tear film.
