@@ -1,3 +1,5 @@
+**English** | [中文](README.zh-CN.md)
+
 # AI Character Studio
 
 A person judges by feel; a machine needs exact numbers. This project builds a way for the two to talk:
