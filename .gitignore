@@ -1,0 +1,34 @@
+# working data stays local
+versions/
+work/
+reviews/
+reference/
+inputs/
+textures/
+renders/
+# third-party downloads are never redistributed
+mocap/**/*.fbx
+mocap/**/*.FBX
+*.zip
+# models, photos and baked maps
+*.blend
+*.blend1
+*.jpg
+*.jpeg
+*.png
+*.exr
+*.tif
+*.tiff
+*.webp
+*.mp4
+# cup presets are not published
+presets/cups*.json
+# python / os
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+.env*
+# approved showcase renders only
+!docs/images/*.jpg
+!docs/images/*.mp4
