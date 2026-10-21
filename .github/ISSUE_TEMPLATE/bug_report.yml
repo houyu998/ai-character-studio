@@ -1,0 +1,43 @@
+name: Bug report / 问题报告
+description: Something does not run or gives a wrong result / 脚本跑不起来或结果不对
+labels: [bug]
+body:
+  - type: input
+    id: os
+    attributes:
+      label: OS / 系统
+      placeholder: Windows 11 / macOS 15 / Ubuntu 24.04
+    validations:
+      required: true
+  - type: input
+    id: blender
+    attributes:
+      label: Blender version / Blender 版本
+      placeholder: "4.4.0"
+    validations:
+      required: true
+  - type: input
+    id: mpfb
+    attributes:
+      label: MPFB version / MPFB 版本
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Exact command / 完整命令
+      render: bash
+    validations:
+      required: true
+  - type: textarea
+    id: error
+    attributes:
+      label: Full output or error / 完整输出或报错
+      description: Remove personal paths if you like / 可以把个人路径删掉
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect? / 你期望的结果
